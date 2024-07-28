@@ -519,9 +519,9 @@ static char *print_usock_addr(struct ipt_netflow_sock *usock)
 }
 
 #ifdef CONFIG_PROC_FS
-static inline int ABS(int x) { return x >= 0 ? x : -x; }
+static inline int ABS_IPTNET(int x) { return x >= 0 ? x : -x; }
 #define SAFEDIV(x,y) ((y)? ({ u64 __tmp = x; do_div(__tmp, y); (int)__tmp; }) : 0)
-#define FFLOAT(x, prec) (int)(x) / prec, ABS((int)(x) % prec)
+#define FFLOAT(x, prec) (int)(x) / prec, ABS_IPTNET((int)(x) % prec)
 static int snmp_seq_show(struct seq_file *seq, void *v)
 {
 	int cpu;
