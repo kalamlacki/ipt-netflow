@@ -1929,16 +1929,7 @@ static ctl_table netflow_net_table[] = {
 	{ }
 };
 #else /* >= 2.6.25 */
-static struct ctl_path netflow_sysctl_path[] = {
-	{
-		.procname = "net",
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,33)
-		.ctl_name = CTL_NET
-#endif
-	},
-	{ .procname = "netflow" },
-	{ }
-};
+
 #endif /* 2.6.25 */
 #endif /* CONFIG_SYSCTL */
 
