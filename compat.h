@@ -76,12 +76,20 @@ union nf_inet_addr {
 #  define BEFORE2632(x,y)
 # endif
 
-# if LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0)
-#  define ctl_table struct ctl_table
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(6,11,0)
+#  define s_ctl_table const struct ctl_table
+# elif LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0)
+#  define s_ctl_table struct ctl_table
+# else
+#  define s_ctl_table ctl_table
 # endif
 
 # ifndef HAVE_GRSECURITY_H
-#  define ctl_table_no_const ctl_table
+#  if LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0)
+#   define ctl_table_no_const struct ctl_table
+#  else
+#   define ctl_table_no_const ctl_table
+#  endif
 # endif
 #endif
 
@@ -119,6 +127,10 @@ static inline u32 prandom_u32_max(u32 ep_ro)
 {
 	return (u32)(((u64) prandom_u32() * ep_ro) >> 32);
 }
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
+#define prandom_u32_max get_random_u32_below
 #endif
 
 #ifndef min_not_zero
@@ -692,7 +704,7 @@ static inline int is_vlan_dev(struct net_device *dev)
 }
 #endif
 
-#ifdef CONFIG_BRIDGE_NETFILTER
+#if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
 # ifndef HAVE_NF_BRIDGE_INFO_GET
 static inline struct nf_bridge_info *
 nf_bridge_info_get(const struct sk_buff *skb)
@@ -746,9 +758,10 @@ unsigned long long strtoul(const char *cp, char **endp, unsigned int base)
 	return result;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,12,0)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,12,0)) \
+    || ((LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,220)) && (LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)))
 /*
- * find_module() is unexported in v5.12:
+ * find_module() is unexported in v5.12 (backported to 5.10.220):
  *   089049f6c9956 ("module: unexport find_module and module_mutex")
  * and module_mutex is replaced with RCU in
  *   a006050575745 ("module: use RCU to synchronize find_module")
@@ -773,12 +786,13 @@ struct module *find_module(const char *name)
 
 /* Copy from 294f69e662d1 ("compiler_attributes.h: Add 'fallthrough' pseudo
  * keyword for switch/case use") */
-#ifndef fallthrough
-# if defined __has_attribute && __has_attribute(__fallthrough__)
+#if !defined(fallthrough) && defined(__has_attribute)
+# if __has_attribute(__fallthrough__)
 #  define fallthrough			__attribute__((__fallthrough__))
-# else
-#  define fallthrough			do {} while (0)  /* fallthrough */
 # endif
+#endif
+#ifndef fallthrough
+#  define fallthrough			do {} while (0)  /* fallthrough */
 #endif
 
 #ifndef HAVE_NF_CT_EVENT_NOTIFIER_CT_EVENT
@@ -790,6 +804,10 @@ struct module *find_module(const char *name)
 # define ct_event fcn
 #else
 # define NF_CT_EVENT const struct nf_ct_event
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,3,0)
+#define strscpy strlcpy
 #endif
 
 #endif /* COMPAT_NETFLOW_H */

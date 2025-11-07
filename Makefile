@@ -2,14 +2,14 @@
 #
 # Edit Makefile.in and run ./configure
 
-KVERSION = @KVERSION@
-KDIR = @KDIR@
-KINSTDIR = $(shell dirname @KDIR@)
-KOPTS = @KOPTS@
-IPTABLES_CFLAGS = @IPTABLES_CFLAGS@
-IPTABLES_MODULES = @IPTABLES_MODULES@
+KVERSION = 6.12.48+deb13-amd64
+KDIR = /lib/modules/6.12.48+deb13-amd64/build
+KINSTDIR = $(shell dirname /lib/modules/6.12.48+deb13-amd64/build)
+KOPTS =  -DCONFIG_NF_NAT_NEEDED -DHAVE_LLIST
+IPTABLES_CFLAGS = -DXTABLES  
+IPTABLES_MODULES = /usr/lib/x86_64-linux-gnu/xtables
 DEPMOD = /sbin/depmod -a
-CARGS = @CARGS@
+CARGS = 
 SNMPTGSO = /usr/lib/snmp/dlmod/snmp_NETFLOW.so
 SNMPCONF = /etc/snmp/snmpd.conf
 SNMPLINE = dlmod netflow $(SNMPTGSO)
@@ -18,9 +18,9 @@ CC ?= gcc
 # https://www.kernel.org/doc/Documentation/kbuild/modules.txt
 # https://www.kernel.org/doc/Documentation/kbuild/makefiles.txt
 obj-m = ipt_NETFLOW.o
-ccflags-y = @KOPTS@
+ccflags-y =  -DCONFIG_NF_NAT_NEEDED -DHAVE_LLIST
 
-all: ipt_NETFLOW.ko libipt_NETFLOW.so libip6t_NETFLOW.so @SNMPTARGET@
+all: ipt_NETFLOW.ko libipt_NETFLOW.so libip6t_NETFLOW.so 
 
 ipt_NETFLOW.ko: version.h ipt_NETFLOW.c ipt_NETFLOW.h compat_def.h compat.h Makefile
 	@echo Compiling $(shell ./version.sh) for kernel $(KVERSION)
@@ -87,7 +87,7 @@ dinstall:
 	@echo " *"
 	@./install-dkms.sh --install
 
-install: minstall linstall @DKMSINSTALL@ @SNMPINSTALL@
+install: minstall linstall dinstall 
 
 uninstall:
 	-rm -f $(DESTDIR)$(IPTABLES_MODULES)/libipt_NETFLOW.so
@@ -101,7 +101,7 @@ uninstall:
 	echo " *     "`egrep "^ *$(SNMPLINE)" $(SNMPCONF)`; \
 	echo " *"; \
 	fi
-	@if [ "@DKMSINSTALL@" = dinstall ]; then ./install-dkms.sh --uninstall; fi
+	@if [ "dinstall" = dinstall ]; then ./install-dkms.sh --uninstall; fi
 	-rm -f $(DESTDIR)$(KINSTDIR)/extra/ipt_NETFLOW.ko
 
 Makefile: Makefile.in configure

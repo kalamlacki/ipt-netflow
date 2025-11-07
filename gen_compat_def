@@ -37,7 +37,8 @@ kbuild_test_compile() {
   else
     echo " undeclared" >&2
     echo "#undef HAVE_$1"
-    echo "// ${2:-symbol} is undeclared${3:+ in <$3>}. Compile:"
+    echo "// ${2:-symbol} is undeclared${3:+ in <$3>}."
+    echo "// Compile:"
     sed  "s/^/\/\/   /" test.c
     echo "// Output:"
     sed  "s/^/\/\/   /" log
@@ -64,7 +65,7 @@ kbuild_test_symbol() {
   echo -n "Test function $* " >&2
   kbuild_test_compile ${1^^} $1 ${2-} <<-EOF
 	#include <linux/module.h>
-	${2:+#include <$2>}
+	${3:-${2:+#include <$2>}}
 	MODULE_LICENSE("GPL");
 	void *test = $1;
 	EOF
@@ -116,17 +117,24 @@ kbuild_test_struct timeval linux/ktime.h
 kbuild_test_struct proc_ops linux/proc_fs.h
 # No since v5.1, but present in CentOS-8's 4.18.0-227
 kbuild_test_symbol synchronize_sched linux/rcupdate.h
-# Fails on 3.10.0-957.10.1.el7.x86_64
+# No since 5, but present in include/net/netfilter/br_netfilter.h >= linux v4.2 and < 5 (non-backports)
 kbuild_test_symbol nf_bridge_info_get linux/netfilter_bridge.h
 # Stumbled on 5.9
 kbuild_test_struct vlan_dev_priv linux/if_vlan.h
 # Kernel version check broken by centos8
-kbuild_test_symbol put_unaligned_be24 asm/unaligned.h
+kbuild_test_symbol put_unaligned_be24 '???/unaligned.h' '#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,12,0)
+#include <linux/unaligned.h>
+#else
+#include <asm/unaligned.h>
+#endif'
 # totalram_pages changed from atomic to inline function.
 kbuild_test_symbol totalram_pages linux/mm.h
 kbuild_test_ref    totalram_pages linux/mm.h
 # b86c0e6429da ("netfilter: ecache: prepare for event notifier merge")
 kbuild_test_member nf_ct_event_notifier.ct_event net/netfilter/nf_conntrack_ecache.h
+# 6.4: 0199849acd07 ("sysctl: remove register_sysctl_paths()")
+kbuild_test_symbol register_sysctl_paths linux/sysctl.h
 
 echo "// End of compat_def.h"
 
