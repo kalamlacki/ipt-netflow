@@ -9,8 +9,8 @@ PKG_SOURCE_URL:=https://github.com/kalamlacki/$(PKG_NAME).git
 #PKG_SOURCE_VERSION:=v$(PKG_VERSION)
 
 #TO BUILD development version uncomment 2 rows below and remove patches
-PKG_VERSION:=$(shell (git ls-remote $(PKG_SOURCE_URL) | grep refs/heads/openwrt | cut -f 1 | head -c 7))
-PKG_SOURCE_VERSION:=HEAD
+PKG_VERSION:=2.6
+PKG_SOURCE_VERSION:=145d9a9
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
