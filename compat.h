@@ -227,6 +227,7 @@ struct timeval {
 	long tv_sec;
 	long tv_usec; /* microseconds */
 };
+unsigned long timeval_to_jiffies(const struct timeval *tv);
 
 unsigned long timeval_to_jiffies(const struct timeval *tv)
 {
