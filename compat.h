@@ -396,6 +396,7 @@ static int sockaddr_cmp(const struct sockaddr_storage *sa1, const struct sockadd
 #ifndef IN6PTON_XDIGIT
 //#define hex_to_bin compat_hex_to_bin
 /* lib/hexdump.c */
+/*
 int hex_to_bin(char ch);
 
 int hex_to_bin(char ch)
@@ -407,7 +408,7 @@ int hex_to_bin(char ch)
 		return ch - 'a' + 10;
 	return -1;
 }
-
+*/
 /* net/core/utils.c */
 #define IN6PTON_XDIGIT		0x00010000
 #define IN6PTON_DIGIT		0x00020000
