@@ -394,8 +394,10 @@ static int sockaddr_cmp(const struct sockaddr_storage *sa1, const struct sockadd
 }
 
 #ifndef IN6PTON_XDIGIT
-#define hex_to_bin compat_hex_to_bin
+//#define hex_to_bin compat_hex_to_bin
 /* lib/hexdump.c */
+int hex_to_bin(char ch);
+
 int hex_to_bin(char ch)
 {
 	if ((ch >= '0') && (ch <= '9'))
@@ -726,6 +728,8 @@ static inline void do_gettimeofday(struct timeval *tv)
 #endif
 
 #define TOLOWER(x) ((x) | 0x20)
+unsigned long long strtoul(const char *cp, char **endp, unsigned int base);
+
 unsigned long long strtoul(const char *cp, char **endp, unsigned int base)
 {
 	unsigned long long result = 0;
